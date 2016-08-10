@@ -1,0 +1,26 @@
+{
+  "name": "ffmpeg-cloud-runner",
+  "version": "1.0.0",
+  "description": "Run ffmpeg commands in the cloud.",
+  "main": "index.js",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "deepmerge": "^0.2.10",
+    "fs": "^0.0.2",
+    "handlebars": "^4.0.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlueTeamReady/ffmpeg-cloud-runner.git"
+  },
+  "author": "Brian Reeve",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BlueTeamReady/ffmpeg-cloud-runner/issues"
+  },
+  "homepage": "https://github.com/BlueTeamReady/ffmpeg-cloud-runner#readme"
+}

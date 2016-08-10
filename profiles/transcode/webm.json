@@ -1,0 +1,12 @@
+{
+    "video": {
+        "codec": "libvpx",
+        "bitrate": {
+            "isVariable": true,
+            "target": "1M"
+        }
+    },
+    "audio": {
+        "codec": "libvorbis"
+    }
+}
