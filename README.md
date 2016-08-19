@@ -11,6 +11,14 @@ Run ffmpeg commands anywhere, with ease.
 
 TODO: instructions
 
+1. Set up a user with proper permissions, install AWS CLI, and (configure)[http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html] on your local environment.
+
+### Testing locally
+
+Let's say you have a user called 'ffmpeg-lambda' set up in `~/.aws/credentials`.
+
+`$ AWS_PROFILE=ffmpeg-lambda LAMBDA_TASK_ROOT=./bin/ffmpeg node aws.js`
+
 ## Command Line
 
 ### Commands

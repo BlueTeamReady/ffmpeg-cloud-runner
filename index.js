@@ -8,6 +8,11 @@ const program = require('commander');
 const ProfileLoader = require('./src/ProfileLoader');
 const util = require('util');
 
+// TODO: if path parameter is specified, add here? or add to path in shell?
+const process = require('process');
+process.env['PATH'] = process.env['PATH'] + ":" + __dirname+"/bin/ffmpeg";
+console.log(process.env['PATH']);
+
 let transcode = (options) => {
     console.log('in');
     console.log(options);
@@ -46,6 +51,7 @@ program
         var profile = pl.getMerged();
         
         profile.bin = {ffmpeg: 'bin/ffmpeg/ffmpeg'};
+        profile.bin = {ffmpeg: 'ffmpeg'};
         profile.input = input;
         profile.output = output;
         
@@ -74,46 +80,37 @@ program
         
         var command = renderedCommandSegments.join(' ');
         
-        if (false) {
-            var exec = require('child_process').exec;
-    
-            exec(command, function(error, stdout, stderr) {
-                console.log(stdout);
-            });
+        var spawn = require('child_process').spawn;
+        var bin = renderedCommandSegments.shift();
         
-        } else {
-            var spawn = require('child_process').spawn;
-            var bin = renderedCommandSegments.shift();
-            
-            console.log("command: %s", bin);
-            console.log(renderedCommandSegments);
-            
-            renderedCommandSegments = [
-                '-i','samples/anni001.mpg',
-                '-vf','scale=640:320',
-                '-c:v','libvpx',
-                '-b:v','1M',
-                '-c:a','libvorbis',
-                'samples/out.webm'
-            ];
-            
-            var child = spawn(bin, renderedCommandSegments, {
-                cwd: __dirname,
-                shell: "bin/bash"
-            });
-            
-            child.stdout.on('data', (data) => {
-                console.log(`stdout: ${data}`);
-            });
-            
-            child.stderr.on('data', (data) => {
-                console.log(`stderr: ${data}`);
-            });
-            
-            child.on('close', (code) => {
-                console.log(`child process exited with code ${code}`);
-            });
-        }
+        console.log("command: %s", bin);
+        console.log(renderedCommandSegments);
+        
+        renderedCommandSegments = [
+            '-i','samples/anni001.mpg',
+            '-vf','scale=640:320',
+            '-c:v','libvpx',
+            '-b:v','1M',
+            '-c:a','libvorbis',
+            'samples/out.webm'
+        ];
+        
+        var child = spawn(bin, renderedCommandSegments, {
+            cwd: __dirname,
+            shell: "bin/bash"
+        });
+        
+        child.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
+        
+        child.stderr.on('data', (data) => {
+            console.log(`stderr: ${data}`);
+        });
+        
+        child.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
+        });
     });
 
 program.parse(process.argv);
