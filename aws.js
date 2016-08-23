@@ -7,6 +7,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
+const ProfileLoader = require('./src/ProfileLoader');
 const shortid = require('shortid');
 const util = require('util');
 const Transcoder = require('./src/Transcoder.js');
@@ -40,6 +41,8 @@ function LambdaRunner(event) {
     //this.tmpDestFilename = event.destination.key;
     this.tmpDestFilename = shortid.generate()+destExt;
     this.tmpDestPath = tempBasePath+this.tmpDestFilename;
+    
+    this.profilePaths = event.profiles;
 }
 
 LambdaRunner.prototype.getEvent = function(val) {
@@ -86,38 +89,28 @@ LambdaRunner.prototype.download = function(callback) {
 LambdaRunner.prototype.transcode = function(callback) {
     var input = this.tmpSrcPath;
     var output = this.tmpDestPath;
-    var profile = {
-        "video": {
-            //"codec": "",
-            "scale": {
-                "w": 640,
-                "h": 320
-            },
-            "bitrate": {
-                "isVariable": true,
-                "target": "1M"
-            }
-        },
-        "audio": {
-            // "codec": ""
-        }
-    };
     
-    var webm = profile;
-    webm.video.codec = "libvpx";
-    webm.audio.codec = "libvorbis";
+    let pl = new ProfileLoader();
     
-    var finalProfile = null;
-    
-    if (this.event.format == 'webm') {
-        finalProfile = webm;
+    if (this.profilePaths) {
+        this.profilePaths.forEach(function (path) {
+            //console.log('path "%s"', path);
+            pl.push(path);
+        });
     }
+    
+    var profile = pl.getMerged();
+    
+    //profile.bin = {ffmpeg: 'bin/ffmpeg/ffmpeg'};
+    profile.bin = {ffmpeg: 'ffmpeg'};
+    profile.input = input;
+    profile.output = output;
     
     var transcoder = new Transcoder();
 
     transcoder.setInput(input);
     transcoder.setOutput(output)
-    transcoder.setProfile(finalProfile);
+    transcoder.setProfile(profile);
     
     transcoder.transcode(callback);
 }
@@ -245,8 +238,8 @@ exports.handler = function(event, context) {
     );
 };
 
-exports.handler({
-  "format": "webm",
+var event = {
+  "profiles": ["profiles/transcode/640x320.json"],
   "source": {"bucket":"bcreeve.pictures", "key": "anni001.mpg"},
   "destination": {"bucket":"bcreeve.pictures", "key": "outlambda.webm"},
   "onCompletion": {
@@ -257,4 +250,11 @@ exports.handler({
       }
     }
   }
-});
+};
+
+var extension = 'mp4';
+
+event.profiles.push('profiles/transcode/'+extension+'.json');
+event.destination.key = 'outlambda.'+extension;
+
+exports.handler(event);

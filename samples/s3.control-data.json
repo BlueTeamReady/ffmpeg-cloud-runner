@@ -1,6 +1,5 @@
 {
   "profiles": [],
-  "format": "webm",
   "source": {"bucket":"bcreeve.pictures", "key": "anni001.mpg"},
   "destination": {"bucket":"bcreeve.pictures", "key": "outlambda.webm"},
   "onCompletion": {

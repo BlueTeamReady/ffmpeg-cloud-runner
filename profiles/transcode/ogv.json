@@ -1,0 +1,14 @@
+{
+    "video": {
+        "codec": "libtheora",
+        "Xbitrate": {
+            "isVariable": true,
+            "target": "1M"
+        },
+        "quality": 7
+    },
+    "audio": {
+        "codec": "libvorbis",
+        "quality": 7
+    }
+}

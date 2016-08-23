@@ -38,7 +38,10 @@ Transcoder.prototype.transcode = function(callback) {
         "{{#if video.scale}}-vf scale={{video.scale.w}}:{{video.scale.h}}{{/if}}",
         "{{#if video.codec}}-c:v {{video.codec}}{{/if}}",
         "{{#if video.bitrate.isVariable}}-b{{#if video.bitrate.target}}:v {{video.bitrate.target}}{{/if}}{{/if}}",
+        "{{#if video.quality}}-qscale:v {{video.quality}}{{/if}}",
         "{{#if audio.codec}}-c:a {{audio.codec}}{{/if}}",
+        "{{#if audio.bitrate}}-b:a {{audio.bitrate}}{{/if}}",
+        "{{#if audio.quality}}-qscale:a {{audio.quality}}{{/if}}",
         "{{output}}"
     ];
     
@@ -46,21 +49,28 @@ Transcoder.prototype.transcode = function(callback) {
     var renderedCommandSegments = [];
     
     commandTemplateSegments.forEach(function(seg) {
-        var rendered = Handlebars.compile(seg);
+        var compiled = Handlebars.compile(seg);
+        var rendered = compiled(this.profile);
         
-        compiledTemplateSegments.push(rendered);
-        renderedCommandSegments.push(rendered(this.profile));
+        compiledTemplateSegments.push(compiled);
+        
+        if (rendered != '') {
+            renderedCommandSegments.push(rendered);
+        }
     }.bind(this));
     
+    console.log('------');
     console.log(renderedCommandSegments);
     
     var command = renderedCommandSegments.join(' ');
+    //command = command.replace(/  +/g, ' ');
     console.log("command: %s", command);
     
     var spawn = require('child_process').spawn;
     var bin = renderedCommandSegments.shift();
     
-    //console.log(renderedCommandSegments);
+    console.log(renderedCommandSegments);
+    console.log('------');
     
     // Prepare rendered command segments for passing to spawn
     var spawnCommandSegments = [];

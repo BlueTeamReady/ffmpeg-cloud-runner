@@ -6,6 +6,7 @@
 const Handlebars = require('handlebars');
 const program = require('commander');
 const ProfileLoader = require('./src/ProfileLoader');
+const Transcoder = require('./src/Transcoder.js');
 const util = require('util');
 
 // TODO: if path parameter is specified, add here? or add to path in shell?
@@ -50,67 +51,18 @@ program
         
         var profile = pl.getMerged();
         
-        profile.bin = {ffmpeg: 'bin/ffmpeg/ffmpeg'};
+        //profile.bin = {ffmpeg: 'bin/ffmpeg/ffmpeg'};
         profile.bin = {ffmpeg: 'ffmpeg'};
         profile.input = input;
         profile.output = output;
         
-        //console.log('%j', profile);
-        console.log(util.inspect(profile,false,null));
+        var transcoder = new Transcoder();
+
+        transcoder.setInput(input);
+        transcoder.setOutput(output)
+        transcoder.setProfile(profile);
         
-        var commandTemplateSegments = [
-            "{{bin.ffmpeg}}",
-            "-i {{input}}",
-            "{{#if video.scale}}-vf scale={{video.scale.w}}:{{video.scale.h}}{{/if}}",
-            "{{#if video.codec}}-c:v {{video.codec}}{{/if}}",
-            "{{#if video.bitrate.isVariable}}-b{{#if video.bitrate.target}}:v {{video.bitrate.target}}{{/if}}{{/if}}",
-            "{{#if audio.codec}}-c:a {{audio.codec}}{{/if}}",
-            "{{output}}"
-        ];
-        
-        var compiledTemplateSegments = [];
-        var renderedCommandSegments = [];
-        
-        commandTemplateSegments.forEach(function(seg) {
-            var rendered = Handlebars.compile(seg);
-            
-            compiledTemplateSegments.push(rendered);
-            renderedCommandSegments.push(rendered(profile));
-        });
-        
-        var command = renderedCommandSegments.join(' ');
-        
-        var spawn = require('child_process').spawn;
-        var bin = renderedCommandSegments.shift();
-        
-        console.log("command: %s", bin);
-        console.log(renderedCommandSegments);
-        
-        renderedCommandSegments = [
-            '-i','samples/anni001.mpg',
-            '-vf','scale=640:320',
-            '-c:v','libvpx',
-            '-b:v','1M',
-            '-c:a','libvorbis',
-            'samples/out.webm'
-        ];
-        
-        var child = spawn(bin, renderedCommandSegments, {
-            cwd: __dirname,
-            shell: "bin/bash"
-        });
-        
-        child.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-        });
-        
-        child.stderr.on('data', (data) => {
-            console.log(`stderr: ${data}`);
-        });
-        
-        child.on('close', (code) => {
-            console.log(`child process exited with code ${code}`);
-        });
+        transcoder.transcode(/* callback */);
     });
 
 program.parse(process.argv);

@@ -1,0 +1,13 @@
+{
+    "video": {
+        "codec": "libx264",
+        "bitrate": {
+            "XisVariable": true,
+            "target": "800k"
+        }
+    },
+    "audio": {
+        "codec": "aac",
+        "bitrate": "240k"
+    }
+}

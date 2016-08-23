@@ -21,6 +21,8 @@ Let's say you have a user called 'ffmpeg-lambda' set up in `~/.aws/credentials`.
 
 ## Command Line
 
+`node index.js transcode samples/anni001.mpg /tmp/out.webm profiles/transcode/640x320.json profiles/transcode/webm.json`
+
 ### Commands
 
 - `transcode`
